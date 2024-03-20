@@ -28,7 +28,7 @@ let persons = [
 
 app.use(express.static('build'))
 app.use(express.json());
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type')); 
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body')); 
 app.get('/api/persons', (req, res) => {
     res.json(persons); 
 })
@@ -67,9 +67,8 @@ app.post('/api/persons', (req, res, next) => {
     newPerson.number = req.body.number;
 
     persons.push(newPerson); 
-    morgan.token('type', function (req) { return JSON.stringify(req.body) })
-
-
+    morgan.token('body', req => JSON.stringify(req.body))
+    
     res.json(newPerson);
     
 })

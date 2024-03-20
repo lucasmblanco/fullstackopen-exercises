@@ -50,7 +50,7 @@ const App = () => {
     setMessage(`Added ${newName} with success`); 
     setNewName(""); 
     setNewNumber("");
-    setTimeout(() => setMessage(null), 2000)
+    setTimeout(() => setMessage(null), 2000);
   }
 
   function onNameChange(e) {
