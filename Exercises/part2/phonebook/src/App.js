@@ -7,11 +7,12 @@ import NotificationMessage from './NotificationMessage';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState(''); 
-  const [newNumber, setNewNumber] = useState(''); 
-  const [filter, setFilter] = useState(''); 
+  const [newName, setNewName] = useState('');
+  const [newNumber, setNewNumber] = useState('');
+  const [filter, setFilter] = useState('');
   const [message, setMessage] = useState(null)
   const [isError, setIsError] = useState(false)
+
 
   function onHandleSubmit(e) {
     e.preventDefault();
@@ -21,18 +22,18 @@ const App = () => {
         editNumber(duplicated.id, { ...duplicated, number: newNumber })
           .then(response => {
             setPersons(persons.map(person => person.id !== response.data.id ? person : response.data))
-            setNewName(""); 
+            setNewName("");
             setNewNumber("");
           })
           .catch(() => {
-            setMessage(`Information of ${newName} has already been removed from the server`); 
-            setIsError(true); 
+            setMessage(`Information of ${newName} has already been removed from the server`);
+            setIsError(true);
             setTimeout(() => {
               setMessage(null)
               setIsError(false)
             }, 2000)
           })
-          
+
       }
       return
     }
@@ -46,11 +47,20 @@ const App = () => {
     create(newPerson)
       .then(response => {
         setPersons(persons.concat(response.data))
+        setMessage(`Added ${newName} with success`);
+        setNewName("");
+        setNewNumber("");
+        setTimeout(() => setMessage(null), 2000);
       })
-    setMessage(`Added ${newName} with success`); 
-    setNewName(""); 
-    setNewNumber("");
-    setTimeout(() => setMessage(null), 2000);
+      .catch(error => {
+        setMessage(`Failed to add ${newName}: ${error.response.data.error}`);
+        console.log(error.response.data.error);
+        setIsError(true);
+        setTimeout(() => {
+          setMessage(null);
+          setIsError(false);
+        }, 2000);
+      });
   }
 
   function onNameChange(e) {
@@ -65,29 +75,29 @@ const App = () => {
     setFilter(e.target.value)
   }
 
-  const phoneList = filter ? persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())) : persons 
+  const phoneList = filter ? persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())) : persons
 
   function deletePerson(e) {
     if (window.confirm(`Delete ${e.target.name}?`)) {
-      remove(e.target.id); 
+      remove(e.target.id);
       setPersons(persons.filter(element => element.id !== Number(e.target.id)))
     }
   }
 
 
   useEffect(() => {
-      getPersons()
+    getPersons()
       .then(response => setPersons(response))
   }, [])
 
 
-  
+
   return (
     <div>
       <h2>Phonebook</h2>
       <Filter filter={filter} onFilterChange={onFilterChange} />
       <h2>add a new</h2>
-      <NotificationMessage message={message} isError={ isError } />
+      <NotificationMessage message={message} isError={isError} />
       <Add onHandleSubmit={onHandleSubmit} onNameChange={onNameChange} onNumberChange={onNumberChange} newName={newName} newNumber={newNumber} />
       <h2>Numbers</h2>
       <Phonebook phoneList={phoneList} deletePerson={deletePerson} />
